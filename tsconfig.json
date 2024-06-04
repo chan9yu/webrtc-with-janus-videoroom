@@ -1,0 +1,47 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		/* Projects */
+		"jsx": "react-jsx",
+
+		/* Language and Environment */
+		"target": "ESNext",
+		"lib": ["DOM", "DOM.Iterable", "ESNext"],
+		"useDefineForClassFields": true,
+
+		/* Modules */
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+
+		/* JavaScript Support */
+		"allowJs": true,
+
+		/* Emit */
+		"declaration": false,
+		"sourceMap": true,
+		"noEmit": true,
+
+		/* Interop Constraints */
+		"isolatedModules": true,
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+
+		/* Type Checking */
+		"strict": true,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"strictBindCallApply": false,
+		"strictPropertyInitialization": false,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+
+		/* Completeness */
+		"skipLibCheck": true
+	},
+	"include": ["src"],
+	"references": [{ "path": "./tsconfig.node.json" }]
+}

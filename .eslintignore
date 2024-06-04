@@ -1,0 +1,44 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# testing
+coverage
+__tests__
+__snapshots__
+tests
+test-helpers
+cypress
+
+# build
+storybook-static
+*.min.js
+*.min.css
+
+# production
+build
+dist
+
+# editop
+*.idea
+.vscode
+
+# misc
+.DS_Store
+*.tmp
+*.log
+*.log.*
+*.lock
+*.gz
+npm-debug.log*
+.history
+
+# config
+.babelrc.json
+.stylelintrc.json
+.eslintrc.cjs
+.eslintrc.js
+*config.js
+*config.cjs
+*.config.js
