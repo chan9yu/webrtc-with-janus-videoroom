@@ -1,11 +1,11 @@
 {
 	"name": "webrtc-sfu-with-janus",
 	"private": true,
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"type": "module",
 	"description": "webrtc sfu with janus",
 	"author": "chan9yu <wry5533@gmail.com>",
-	"packageManager": "pnpm@9.1.0",
+	"packageManager": "pnpm@9.2.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/chan9yu/webrtc-sfu-with-janus"
@@ -31,6 +31,7 @@
 		"husky:permission": "chmod +x .husky/*"
 	},
 	"dependencies": {
+		"events": "^3.3.0",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"react-router-dom": "^6.23.1"
@@ -38,7 +39,8 @@
 	"devDependencies": {
 		"@commitlint/cli": "^19.3.0",
 		"@commitlint/config-conventional": "^19.2.2",
-		"@types/react": "^18.3.2",
+		"@types/node": "^20.14.2",
+		"@types/react": "^18.3.3",
 		"@types/react-dom": "^18.3.0",
 		"@typescript-eslint/eslint-plugin": "^7.8.0",
 		"@typescript-eslint/parser": "^7.8.0",
@@ -56,8 +58,8 @@
 		"eslint-plugin-react-hooks": "^4.6.2",
 		"eslint-plugin-react-refresh": "^0.4.7",
 		"husky": "^9.0.11",
-		"lint-staged": "^15.2.2",
-		"prettier": "^3.2.5",
+		"lint-staged": "^15.2.5",
+		"prettier": "^3.3.1",
 		"typescript": "^5.4.5",
 		"vite": "^5.2.11"
 	}
