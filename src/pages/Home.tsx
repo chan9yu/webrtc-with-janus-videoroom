@@ -1,18 +1,13 @@
-import { JanusClient } from '../modules/janus/JanusClient';
+import { AppService } from '../services/AppService';
 
-const janusClient = new JanusClient();
+new AppService();
 
 export default function HomePage() {
-	const handleJanusConnect = () => {
-		console.log('### janus join room');
-		janusClient.joinRoom();
-	};
-
 	return (
-		<div>
-			<h1>Home Page</h1>
-			<br />
-			<button onClick={handleJanusConnect}>Connect</button>
+		<div className="container">
+			<h1>Janus 1:n Video Room</h1>
+			<video id="localVideo" autoPlay muted></video>
+			<div id="remoteVideos"></div>
 		</div>
 	);
 }
