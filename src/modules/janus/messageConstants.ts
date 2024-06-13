@@ -1,4 +1,4 @@
-export enum JANUS_REQUEST_TYPE {
+export enum JANUS_TYPE {
 	/** 새로운 세션을 생성하는 요청 */
 	CREATE = 'create',
 	/** 기존 세션을 삭제하는 요청 */
@@ -32,7 +32,7 @@ export enum JANUS_PLUGIN {
 	VOICEMAIL = 'janus.plugin.voicemail'
 }
 
-export enum JANUS_REQUEST {
+export enum JANUS_VIDEOROOM_REQUEST {
 	/** 새로운 방을 생성하는 요청 */
 	CREATE = 'create',
 	/** 기존 방을 삭제하는 요청 */

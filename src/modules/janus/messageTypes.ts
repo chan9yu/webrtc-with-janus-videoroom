@@ -1,7 +1,7 @@
-import { JANUS_PLUGIN, JANUS_REQUEST_TYPE } from './messageConstants';
+import { JANUS_PLUGIN, JANUS_TYPE } from './messageConstants';
 
 export type AttachPluginMessage = {
-	janus: JANUS_REQUEST_TYPE.ATTACH;
+	janus: JANUS_TYPE.ATTACH;
 	plugin: JANUS_PLUGIN.VIDEOROOM;
 	transaction: string;
 	session_id: string;
