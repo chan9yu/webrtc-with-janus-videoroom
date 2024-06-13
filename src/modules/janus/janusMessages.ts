@@ -1,12 +1,6 @@
-import {
-	JANUS_PARTICIPANT_TYPE,
-	JANUS_PLUGIN,
-	JANUS_TYPE,
-	JANUS_VIDEOROOM_REQUEST,
-	JSEP_TYPE
-} from './messageConstants';
+import { JANUS_PARTICIPANT_TYPE, JANUS_PLUGIN, JANUS_TYPE, JANUS_VIDEOROOM_REQUEST, JSEP_TYPE } from './constants';
 
-function generateTransactionId() {
+function createTransactionId() {
 	const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 	let result = '';
 	for (let i = 0; i < 12; i++) {
@@ -24,7 +18,7 @@ function generateTransactionId() {
 export function makeCreateSessionMessage() {
 	return {
 		janus: JANUS_TYPE.CREATE,
-		transaction: generateTransactionId()
+		transaction: createTransactionId()
 	};
 }
 
@@ -37,7 +31,7 @@ export function makeAttachPluginMessage(sessionId: string) {
 	return {
 		janus: JANUS_TYPE.ATTACH,
 		plugin: JANUS_PLUGIN.VIDEOROOM,
-		transaction: generateTransactionId(),
+		transaction: createTransactionId(),
 		session_id: sessionId
 	};
 }
@@ -50,7 +44,7 @@ export function makeAttachPluginMessage(sessionId: string) {
 export function makeExistsMessage(sessionId: string, handleId: string, body: { room: number }) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
-		transaction: generateTransactionId(),
+		transaction: createTransactionId(),
 		session_id: sessionId,
 		handle_id: handleId,
 		body: {
@@ -68,7 +62,7 @@ export function makeExistsMessage(sessionId: string, handleId: string, body: { r
 export function makeCreateRoomMessage(sessionId: string, handleId: string, body: { room: number }) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
-		transaction: generateTransactionId(),
+		transaction: createTransactionId(),
 		session_id: sessionId,
 		handle_id: handleId,
 		body: {
@@ -89,7 +83,7 @@ export function makeCreateRoomMessage(sessionId: string, handleId: string, body:
 export function makeJoinRoomMessage(sessionId: string, handleId: string, body: { room: number; displayName: string }) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
-		transaction: generateTransactionId(),
+		transaction: createTransactionId(),
 		session_id: sessionId,
 		handle_id: handleId,
 		body: {
@@ -113,7 +107,7 @@ export function makeConfigureMessage(
 ) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
-		transaction: generateTransactionId(),
+		transaction: createTransactionId(),
 		session_id: sessionId,
 		handle_id: handleId,
 		body: {
@@ -135,7 +129,7 @@ export function makeConfigureMessage(
 export function makeLeaveRoomMessage(sessionId: string, handleId: string) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
-		transaction: generateTransactionId(),
+		transaction: createTransactionId(),
 		session_id: sessionId,
 		handle_id: handleId,
 		body: {
@@ -152,7 +146,7 @@ export function makeLeaveRoomMessage(sessionId: string, handleId: string) {
 export function makeDestroyRoomMessage(sessionId: string, handleId: string, body: { room: number; secret: string }) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
-		transaction: generateTransactionId(),
+		transaction: createTransactionId(),
 		session_id: sessionId,
 		handle_id: handleId,
 		body: {
@@ -175,7 +169,7 @@ export function makePublishMessage(
 ) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
-		transaction: generateTransactionId(),
+		transaction: createTransactionId(),
 		session_id: sessionId,
 		handle_id: handleId,
 		body: {

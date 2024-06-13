@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { EventEmitter } from 'events';
-
-export enum WEB_SOCKET_EVENTS {
-	ON_OPEN = 'ON_OPEN',
-	ON_MESSAGE = 'ON_MESSAGE',
-	ON_ERROR = 'ON_ERROR',
-	ON_CLOSE = 'ON_CLOSE'
-}
+import { WEB_SOCKET_EVENTS } from './constants';
 
 export class SocketManager extends EventEmitter {
 	private ws: WebSocket;

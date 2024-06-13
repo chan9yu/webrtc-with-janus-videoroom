@@ -1,10 +1,5 @@
 import { EventEmitter } from 'events';
-
-export enum SESSION_TYPE {
-	VIDEO = 0,
-	AUDIO = 1,
-	SCREEN = 2
-}
+import { SESSION_TYPE } from './constants';
 
 export type ICEServerInfo = {
 	urls: string;
