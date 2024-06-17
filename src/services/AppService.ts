@@ -1,6 +1,9 @@
 import * as janusMessage from '../modules/janus/janusMessages';
-import { SocketManager, WEB_SOCKET_EVENTS } from '../modules/socket/SocketManager';
-import { RTCManager, SESSION_TYPE } from '../modules/webrtc/RTCManager';
+import { SocketManager } from '../modules/socket/SocketManager';
+import { WEB_SOCKET_EVENTS } from '../modules/socket/constants';
+import { RTCManager } from '../modules/webrtc/RTCManager';
+import { RTC_PEER_EVENTS } from '../modules/webrtc/constants';
+import { getUserStream } from '../modules/webrtc/utils';
 
 enum JanusTransactionState {
 	CREATE_SESSION = 'CREATE_SESSION',
@@ -18,27 +21,24 @@ enum JanusTransactionState {
 }
 
 export class AppService {
-	private sessionId: string | null;
-	private handleId: string | null;
-	private roomId: number;
+	private static instance: AppService;
+
+	private sessionId: string | null = null;
+	private handleId: string | null = null;
+	private roomId: number = 1234;
 	private isRoomCreator = false;
-	private rtcManager: RTCManager;
 	private transactionState: JanusTransactionState;
+	private rtcManager: RTCManager;
 	private janusSocketManager: SocketManager;
 
-	constructor() {
-		this.sessionId = null;
-		this.handleId = null;
-		this.roomId = 1234;
-		this.rtcManager = RTCManager.getInstance();
-	}
+	private constructor() {}
 
-	private async createOfferSDP() {
-		if (!this.sessionId) throw new Error('');
-		const peerId = this.rtcManager.createPeerId(this.sessionId, SESSION_TYPE.VIDEO);
-		this.rtcManager.getPeer(peerId) || this.rtcManager.createPeer(peerId);
-		const offer = await this.rtcManager.createOfferSDP(peerId);
-		return offer.sdp;
+	public static getInstance() {
+		if (!AppService.instance) {
+			AppService.instance = new AppService();
+		}
+
+		return AppService.instance;
 	}
 
 	private onJanusMessage(msg: MessageEvent) {
@@ -69,7 +69,12 @@ export class AppService {
 			case JanusTransactionState.SUBSCRIBER_JOIN_ROOM:
 				if (message.janus === 'event') {
 					console.log('### SUBSCRIBER_JOIN_ROOM: ', message);
-					this.createOfferSDP().then(sdp => sdp && this.sendConfigureMessage(sdp));
+					this.rtcManager.createOfferSDP().then(({ sdp }) => sdp && this.sendConfigureMessage(sdp));
+				}
+				break;
+			case JanusTransactionState.SEND_OFFER_SDP:
+				if (message.janus === 'event') {
+					this.rtcManager.setRemoteSDP(message.jsep);
 				}
 				break;
 		}
@@ -97,11 +102,31 @@ export class AppService {
 		});
 	}
 
+	private initPeerEvents() {
+		this.rtcManager.addListener(RTC_PEER_EVENTS.ON_ICE_CANDIDATE, (candidate: RTCIceCandidate | null) => {
+			candidate && this.sendCandidateMessage(candidate);
+		});
+
+		this.rtcManager.addListener(RTC_PEER_EVENTS.ON_TRACK, () => {});
+	}
+
+	private async setLocalStream() {
+		const stream = await getUserStream({ audio: false, video: true });
+		this.rtcManager.addTrack(stream);
+	}
+
+	private createPeer() {
+		this.rtcManager = new RTCManager();
+		this.initPeerEvents();
+		this.setLocalStream();
+	}
+
 	public connectJanus() {
 		console.log('JanusService::connectJanus');
 		const url = `wss://janus.conf.meetecho.com/ws`;
 		this.janusSocketManager = new SocketManager(url, 'janus-protocol');
 		this.initWebSocketEvents();
+		this.createPeer();
 	}
 
 	public attachPlugin() {
@@ -140,6 +165,13 @@ export class AppService {
 			{ audio: true, video: true },
 			{ sdp }
 		);
+		this.janusSocketManager.send(message);
+	}
+
+	public sendCandidateMessage(candidate: RTCIceCandidate) {
+		if (!this.sessionId || !this.handleId) throw new Error('');
+		this.transactionState = JanusTransactionState.SEND_CANDIDATE;
+		const message = janusMessage.makeCandidateMessage(this.sessionId, this.handleId, candidate);
 		this.janusSocketManager.send(message);
 	}
 }

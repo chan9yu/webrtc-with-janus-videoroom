@@ -1,18 +1,18 @@
 import { AppService } from '../services/AppService';
 
-const appsService = new AppService();
+const appService = AppService.getInstance();
 
 export default function HomePage() {
 	const handleConnectJanus = () => {
-		appsService.connectJanus();
+		appService.connectJanus();
 	};
 
 	const handleCreateRoom = () => {
-		appsService.createRoom();
+		appService.createRoom();
 	};
 
 	const handleJoinRoom = () => {
-		appsService.joinRoom('옥분이');
+		appService.joinRoom('옥분이');
 	};
 
 	return (

@@ -182,3 +182,21 @@ export function makePublishMessage(
 		}
 	};
 }
+
+export function makeCandidateMessage(
+	sessionId: string,
+	handleId: string,
+	{ candidate, sdpMLineIndex, sdpMid }: RTCIceCandidate
+) {
+	return {
+		janus: JANUS_TYPE.TRICKLE,
+		transaction: createTransactionId(),
+		session_id: sessionId,
+		handle_id: handleId,
+		candidate: {
+			candidate,
+			sdpMLineIndex,
+			sdpMid
+		}
+	};
+}
