@@ -1,59 +1,55 @@
 import { EventEmitter } from 'events';
-
-export type TrackKind = 'video' | 'audio' | 'both';
-
-export type ICEServerInfo = {
-	urls: string;
-	username: string;
-	credential: string;
-};
+import type { TrackKind } from './types';
+import { RTC_PEER_EVENTS } from './constants';
 
 export class RTCManager extends EventEmitter {
 	private peer: RTCPeerConnection | null = null;
 	private sourceStream?: MediaStream;
 
-	public readonly peerId: string;
-
-	constructor(peerId: string, options?: RTCConfiguration) {
+	constructor(options?: RTCConfiguration) {
 		super();
 		this.peer = new RTCPeerConnection(options);
-		this.peerId = peerId;
 		this.initPeerEvents();
-	}
-
-	private initPeerEvents() {
-		const peer = this.peer;
-		if (!peer) throw new Error('peer not found');
-
-		peer.onconnectionstatechange = event => {
-			console.log(event);
-		};
-
-		peer.onsignalingstatechange = event => {
-			console.log(event);
-		};
-
-		peer.onicecandidate = event => {
-			console.log(event);
-		};
-
-		peer.onnegotiationneeded = event => {
-			console.log(event);
-		};
-
-		peer.ontrack = event => {
-			console.log(event);
-		};
-
-		peer.ondatachannel = event => {
-			console.log(event);
-		};
 	}
 
 	private getPeer() {
 		const peer = this.peer;
 		if (!peer) throw new Error('peer not found');
 		return peer;
+	}
+
+	private initPeerEvents() {
+		const peer = this.getPeer();
+
+		peer.onconnectionstatechange = () => {
+			console.log('RTCManager::ON_CONNECTION_STATE_CHANGED');
+			this.emit(RTC_PEER_EVENTS.ON_CONNECTION_STATE_CHANGED, peer.connectionState);
+		};
+
+		peer.onsignalingstatechange = () => {
+			console.log('RTCManager::ON_SIGNALING_STATE_CHANGE');
+			this.emit(RTC_PEER_EVENTS.ON_SIGNALING_STATE_CHANGE, peer.signalingState);
+		};
+
+		peer.onicecandidate = event => {
+			console.log('RTCManager::ON_ICE_CANDIDATE');
+			this.emit(RTC_PEER_EVENTS.ON_ICE_CANDIDATE, event.candidate);
+		};
+
+		peer.onnegotiationneeded = () => {
+			console.log('RTCManager::ON_NEGOTIATION_NEEDED');
+			this.emit(RTC_PEER_EVENTS.ON_NEGOTIATION_NEEDED);
+		};
+
+		peer.ontrack = event => {
+			console.log('RTCManager::ON_TRACK', event.streams);
+			this.emit(RTC_PEER_EVENTS.ON_TRACK, event.streams[0]);
+		};
+
+		peer.ondatachannel = event => {
+			console.log('RTCManager::ON_DATA_CHANNEL');
+			this.emit(RTC_PEER_EVENTS.ON_DATA_CHANNEL, event);
+		};
 	}
 
 	private replaceSenderTrack(stream: MediaStream, kind: TrackKind) {
