@@ -1,8 +1,10 @@
+import default_avatar_img from '../assets/images/avatar.jpg';
+import { PUBLISHERS } from '../modules/janus/constants';
 import * as janusMessage from '../modules/janus/janusMessages';
 import { SocketManager } from '../modules/socket/SocketManager';
 import { WEB_SOCKET_EVENTS } from '../modules/socket/constants';
 import { RTCManager } from '../modules/webrtc/RTCManager';
-import { RTC_PEER_EVENTS } from '../modules/webrtc/constants';
+import { PEER_EVENTS } from '../modules/webrtc/constants';
 import { getUserStream } from '../modules/webrtc/utils';
 
 enum JanusTransactionState {
@@ -27,11 +29,27 @@ export class AppService {
 	private handleId: string | null = null;
 	private roomId: number = 1234;
 	private isRoomCreator = false;
-	private transactionState: JanusTransactionState;
+	private transactionState: JanusTransactionState | null = null;
 	private rtcManager: RTCManager;
 	private janusSocketManager: SocketManager;
+	private videos = Array.from({ length: PUBLISHERS }, () => document.createElement('video'));
 
-	private constructor() {}
+	get videoElements() {
+		return this.videos;
+	}
+
+	private constructor() {
+		this.initVideo();
+	}
+
+	private initVideo() {
+		this.videos.forEach(video => {
+			video.muted = true;
+			video.autoplay = true;
+			video.playsInline = true;
+			video.poster = default_avatar_img;
+		});
+	}
 
 	public static getInstance() {
 		if (!AppService.instance) {
@@ -103,22 +121,39 @@ export class AppService {
 	}
 
 	private initPeerEvents() {
-		this.rtcManager.addListener(RTC_PEER_EVENTS.ON_ICE_CANDIDATE, (candidate: RTCIceCandidate | null) => {
+		this.rtcManager.addListener(PEER_EVENTS.ON_ICE_CANDIDATE, (candidate: RTCIceCandidate | null) => {
 			candidate && this.sendCandidateMessage(candidate);
 		});
 
-		this.rtcManager.addListener(RTC_PEER_EVENTS.ON_TRACK, () => {});
+		this.rtcManager.addListener(PEER_EVENTS.ON_ICE_GATHERING_STATE_CHANGE, (iceState: RTCIceGatheringState) => {
+			iceState === 'complete' && this.sendCandidateCompletedMessage();
+		});
+
+		this.rtcManager.addListener(PEER_EVENTS.ON_TRACK, () => {
+			console.log('### TEST');
+		});
 	}
 
-	private async setLocalStream() {
-		const stream = await getUserStream({ audio: false, video: true });
+	private async startLocalStream() {
+		const constraints: MediaStreamConstraints = {
+			video: {
+				width: { ideal: 640 },
+				height: { ideal: 360 }
+			},
+			audio: false
+		};
+
+		const stream = await getUserStream(constraints);
 		this.rtcManager.addTrack(stream);
+		const localVideo = this.videos[0];
+		localVideo.srcObject = stream;
+		localVideo.id = 'local-video';
 	}
 
 	private createPeer() {
 		this.rtcManager = new RTCManager();
 		this.initPeerEvents();
-		this.setLocalStream();
+		this.startLocalStream();
 	}
 
 	public connectJanus() {
@@ -172,6 +207,13 @@ export class AppService {
 		if (!this.sessionId || !this.handleId) throw new Error('');
 		this.transactionState = JanusTransactionState.SEND_CANDIDATE;
 		const message = janusMessage.makeCandidateMessage(this.sessionId, this.handleId, candidate);
+		this.janusSocketManager.send(message);
+	}
+
+	public sendCandidateCompletedMessage() {
+		if (!this.sessionId || !this.handleId) throw new Error('');
+		this.transactionState = null;
+		const message = janusMessage.makeCandidateCompletedMessage(this.sessionId, this.handleId);
 		this.janusSocketManager.send(message);
 	}
 }
