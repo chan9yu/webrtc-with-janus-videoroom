@@ -79,3 +79,6 @@ export enum JSEP_TYPE {
 	ANSWER = 'answer',
 	PRANSWER = 'pranswer'
 }
+
+/** Room에 참여할 수 있는 최대인원 */
+export const PUBLISHERS = 6;

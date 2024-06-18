@@ -1,4 +1,11 @@
-import { JANUS_PARTICIPANT_TYPE, JANUS_PLUGIN, JANUS_TYPE, JANUS_VIDEOROOM_REQUEST, JSEP_TYPE } from './constants';
+import {
+	JANUS_PARTICIPANT_TYPE,
+	JANUS_PLUGIN,
+	JANUS_TYPE,
+	JANUS_VIDEOROOM_REQUEST,
+	JSEP_TYPE,
+	PUBLISHERS
+} from './constants';
 
 function createTransactionId() {
 	const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -41,7 +48,11 @@ export function makeAttachPluginMessage(sessionId: string) {
  * - 전송 시점:
  * - 의미:
  */
-export function makeExistsMessage(sessionId: string, handleId: string, body: { room: number }) {
+export function makeExistsMessage(
+	sessionId: string, //
+	handleId: string,
+	body: { room: number }
+) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
 		transaction: createTransactionId(),
@@ -59,7 +70,11 @@ export function makeExistsMessage(sessionId: string, handleId: string, body: { r
  * - 전송 시점: 새로운 비디오 룸을 생성할 때
  * - 의미: 새로운 비디오 룸을 생성하고 설정을 지정
  */
-export function makeCreateRoomMessage(sessionId: string, handleId: string, body: { room: number }) {
+export function makeCreateRoomMessage(
+	sessionId: string, //
+	handleId: string,
+	body: { room: number }
+) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
 		transaction: createTransactionId(),
@@ -67,9 +82,13 @@ export function makeCreateRoomMessage(sessionId: string, handleId: string, body:
 		handle_id: handleId,
 		body: {
 			request: JANUS_VIDEOROOM_REQUEST.CREATE,
+			description: 'Demo Room',
 			secret: 'adminpwd',
-			publishers: 5,
-			videocodec: 'h264,vp8',
+			publishers: PUBLISHERS,
+			bitrate: 128000,
+			fir_freq: 10,
+			videocodec: 'h264',
+			record: false,
 			...body
 		}
 	};
@@ -80,7 +99,11 @@ export function makeCreateRoomMessage(sessionId: string, handleId: string, body:
  * - 전송 시점: 기존 비디오 룸에 참가할 때
  * - 의미: 특정 비디오 룸에 참가자로 가입
  */
-export function makeJoinRoomMessage(sessionId: string, handleId: string, body: { room: number; displayName: string }) {
+export function makeJoinRoomMessage(
+	sessionId: string, //
+	handleId: string,
+	body: { room: number; displayName: string }
+) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
 		transaction: createTransactionId(),
@@ -126,7 +149,10 @@ export function makeConfigureMessage(
  * - 전송 시점: 비디오 룸을 떠날 때
  * - 의미: 현재 참가 중인 비디오 룸에서 나간다
  */
-export function makeLeaveRoomMessage(sessionId: string, handleId: string) {
+export function makeLeaveRoomMessage(
+	sessionId: string, //
+	handleId: string
+) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
 		transaction: createTransactionId(),
@@ -143,7 +169,11 @@ export function makeLeaveRoomMessage(sessionId: string, handleId: string) {
  * - 전송 시점: 비디오 룸을 삭제할 때
  * - 의미: 특정 비디오 룸을 삭제
  */
-export function makeDestroyRoomMessage(sessionId: string, handleId: string, body: { room: number; secret: string }) {
+export function makeDestroyRoomMessage(
+	sessionId: string, //
+	handleId: string,
+	body: { room: number; secret: string }
+) {
 	return {
 		janus: JANUS_TYPE.MESSAGE,
 		transaction: createTransactionId(),
@@ -197,6 +227,21 @@ export function makeCandidateMessage(
 			candidate,
 			sdpMLineIndex,
 			sdpMid
+		}
+	};
+}
+
+export function makeCandidateCompletedMessage(
+	sessionId: string, //
+	handleId: string
+) {
+	return {
+		janus: JANUS_TYPE.TRICKLE,
+		transaction: createTransactionId(),
+		session_id: sessionId,
+		handle_id: handleId,
+		candidate: {
+			completed: true
 		}
 	};
 }
