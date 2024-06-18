@@ -1,10 +1,15 @@
 import { EventEmitter } from 'events';
+
+import { PEER_EVENTS } from './constants';
 import type { TrackKind } from './types';
-import { RTC_PEER_EVENTS } from './constants';
 
 export class RTCManager extends EventEmitter {
 	private peer: RTCPeerConnection | null = null;
 	private sourceStream?: MediaStream;
+
+	get localStream() {
+		return this.sourceStream;
+	}
 
 	constructor(options?: RTCConfiguration) {
 		super();
@@ -23,32 +28,36 @@ export class RTCManager extends EventEmitter {
 
 		peer.onconnectionstatechange = () => {
 			console.log('RTCManager::ON_CONNECTION_STATE_CHANGED');
-			this.emit(RTC_PEER_EVENTS.ON_CONNECTION_STATE_CHANGED, peer.connectionState);
+			this.emit(PEER_EVENTS.ON_CONNECTION_STATE_CHANGED, peer.connectionState);
 		};
 
 		peer.onsignalingstatechange = () => {
 			console.log('RTCManager::ON_SIGNALING_STATE_CHANGE');
-			this.emit(RTC_PEER_EVENTS.ON_SIGNALING_STATE_CHANGE, peer.signalingState);
+			this.emit(PEER_EVENTS.ON_SIGNALING_STATE_CHANGE, peer.signalingState);
 		};
 
 		peer.onicecandidate = event => {
 			console.log('RTCManager::ON_ICE_CANDIDATE');
-			this.emit(RTC_PEER_EVENTS.ON_ICE_CANDIDATE, event.candidate);
+			this.emit(PEER_EVENTS.ON_ICE_CANDIDATE, event.candidate);
+		};
+
+		peer.onicegatheringstatechange = () => {
+			this.emit(PEER_EVENTS.ON_ICE_GATHERING_STATE_CHANGE, peer.iceGatheringState);
 		};
 
 		peer.onnegotiationneeded = () => {
 			console.log('RTCManager::ON_NEGOTIATION_NEEDED');
-			this.emit(RTC_PEER_EVENTS.ON_NEGOTIATION_NEEDED);
+			this.emit(PEER_EVENTS.ON_NEGOTIATION_NEEDED);
 		};
 
 		peer.ontrack = event => {
 			console.log('RTCManager::ON_TRACK', event.streams);
-			this.emit(RTC_PEER_EVENTS.ON_TRACK, event.streams[0]);
+			this.emit(PEER_EVENTS.ON_TRACK, event.streams[0]);
 		};
 
 		peer.ondatachannel = event => {
 			console.log('RTCManager::ON_DATA_CHANNEL');
-			this.emit(RTC_PEER_EVENTS.ON_DATA_CHANNEL, event);
+			this.emit(PEER_EVENTS.ON_DATA_CHANNEL, event);
 		};
 	}
 
